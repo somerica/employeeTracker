@@ -17,3 +17,7 @@
   },
   "homepage": "https://github.com/somerica/employeeTracker#readme"
 }
+  "dependencies": {
+    "inquirer": "^6.2.1",
+    "mysql": "^2.16.0"
+  }
