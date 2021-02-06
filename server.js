@@ -30,6 +30,7 @@ var connection = mysql.createConnection({
         choices: [
           "View all employees",
           "Add an employee",
+          "Remove an employee",
         ]
       })
       .then(function(answer) {
@@ -40,6 +41,10 @@ var connection = mysql.createConnection({
 
             case "Add an employee":
                 addEmployee();
+                break;
+
+            case "Remove an employee":
+                removeEmployee();
                 break;
         }
       });
@@ -55,6 +60,49 @@ var connection = mysql.createConnection({
         runSearch();
       });
   }
+
+    // Remove an employee
+    function removeEmployee() {
+        connection.query("SELECT employee_id, employee.first_name, employee.last_name FROM employee", function(err, results) {
+          if (err) throw err;
+    
+          inquirer.prompt(
+            {
+              name: "employee",
+              type: "rawlist",
+              choices: function() {
+                var choiceArray = [];
+                for (var i = 0; i < results.length; i++) {
+                  choiceArray.push(results[i].first_name);
+                }
+                return choiceArray;
+              },
+              message: "Which employee would you like to remove?"
+            }
+          ).then(function(answer) {
+            // get the information of the chosen item
+            var chosenItem;
+            for (var i = 0; i < results.length; i++) {
+              if (results[i].first_name === answer.employee) {
+                chosenItem = results[i];
+              }
+            }
+            
+            connection.query(
+              "DELETE FROM employee WHERE ?",
+              {
+                employee_id: chosenItem.employee_id
+              },
+              function(err, res) {
+                if (err) throw err;
+              }
+            );
+            runSearch();
+          })
+        })
+        
+        
+      }
   
   function addEmployee() {
     inquirer.prompt([
