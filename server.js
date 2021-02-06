@@ -29,13 +29,18 @@ var connection = mysql.createConnection({
         message: "What would you like to do?",
         choices: [
           "View all employees",
+          "Add an employee",
         ]
       })
       .then(function(answer) {
         switch (answer.action) {
-        case "View all employees":
-          employeeSearch();
-          break;
+            case "View all employees":
+                employeeSearch();
+                break;
+
+            case "Add an employee":
+                addEmployee();
+                break;
         }
       });
   }
@@ -49,4 +54,59 @@ var connection = mysql.createConnection({
         console.table(res);
         runSearch();
       });
-  } 
+  }
+  
+  function addEmployee() {
+    inquirer.prompt([
+      {
+      name: "fname",
+      type: "input",
+      message: "What is the employee's first name?",
+    },
+    {
+      name: "lname",
+      type: "input",
+      message: "What is the employee's last name?",
+    },
+    {
+      name: "role",
+      type: "list",
+      message: "What is the employee's role?",
+      choices: ["Software Engineer", "Sales Manager", "Sales Lead", "Creative Director"]
+
+    }
+  ]).then(function(answer) {
+    var roleId;
+
+    // Set the role id based off the answer.
+    switch(answer.role) {
+      case "Software Engineer":
+      roleId = 1
+      break;
+
+      case "Sales Manager":
+      roleId = 2
+      break;
+
+      case "Sales Lead":
+      roleId = 3
+      break;
+
+      case "Creative Director":
+      roleId = 4
+      break;
+    }
+
+    connection.query(
+      "INSERT INTO employee SET ?",
+      {
+        first_name: answer.fname,
+        last_name: answer.lname,
+        role_id: roleId,
+      },
+      function(err) {
+        if (err) throw err;
+        runSearch();
+      }
+    );
+    })}
